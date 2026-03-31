@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DCX Design Team — Prompt Library</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#111;color:#e0e0e0;overflow:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#1a1a1a}::-webkit-scrollbar-thumb{background:#444;border-radius:3px}
+.sidebar{transition:width .3s,min-width .3s,padding .3s;width:260px;min-width:260px;overflow:hidden}
+.sidebar.collapsed{width:0!important;min-width:0!important;padding:0!important}
+.folder-item{border:1px solid #2a2a2a;transition:all .15s;cursor:pointer;border-radius:8px;padding:8px 10px;display:flex;align-items:center;gap:8px}
+.folder-item:hover{border-color:#444;background:#1e1e1e}
+.folder-item.active{border-color:#3b82f6!important;background:rgba(59,130,246,.1)!important}
+.prompt-card{border:1px solid #2a2a2a;transition:all .15s;background:#1a1a1a;border-radius:10px;cursor:pointer}
+.prompt-card:hover{border-color:#444;background:#1e1e1e}
+.tab-btn{padding:6px 14px;border-radius:6px;font-size:13px;cursor:pointer;transition:all .15s;color:#666;border:none;background:transparent;font-family:'Inter',sans-serif}
+.tab-btn.active{background:#1e1e1e;color:#fff;border:1px solid #333}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:14px;padding:28px;width:100%}
+.btn-primary{background:#3b82f6;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn-primary:hover{background:#2563eb}
+.btn-ghost{background:transparent;color:#888;border:1px solid #2a2a2a;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:6px}
+.btn-ghost:hover{border-color:#444;color:#ccc}
+.btn-danger{background:#ef4444;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif}
+.inp{background:#111;border:1px solid #2a2a2a;color:#e0e0e0;padding:9px 12px;border-radius:8px;width:100%;font-size:13px;outline:none;font-family:'Inter',sans-serif}
+.inp:focus{border-color:#3b82f6}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.badge-blue{background:rgba(59,130,246,.15);color:#60a5fa}
+.badge-green{background:rgba(34,197,94,.12);color:#4ade80}
+.toast{position:fixed;bottom:24px;right:24px;color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;font-weight:500;transform:translateY(60px);opacity:0;transition:transform .3s,opacity .3s;z-index:200;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+.avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+.icon-btn{width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;border:none;background:transparent;color:#666;transition:all .15s;flex-shrink:0}
+.icon-btn:hover{color:#ccc;background:#1e1e1e}
+.icon-btn.active{color:#3b82f6}
+.toggle{position:relative;width:36px;height:20px;background:#333;border-radius:10px;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle.on{background:#3b82f6}
+.toggle-knob{position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .2s}
+.toggle.on .toggle-knob{left:19px}
+select.inp option{background:#1a1a1a}
+svg.ic{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;display:block}
+svg.ic16{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;display:block}
+</style>
+</head>
+<body>
+
+<div id="login-screen" class="fixed inset-0 flex items-center justify-center z-50" style="background:#111">
+  <div style="text-align:center;max-width:360px;width:100%;padding:0 24px">
+    <div style="display:flex;align-items:center;justify-content:center;margin-bottom:20px">
+      <svg height="32" viewBox="0 0 43 40" fill="none"><path d="M26.14 5.12C26.14 2.29 23.85 0 21.02 0 18.2 0 15.91 2.29 15.91 5.12c0 2.83 2.29 5.12 5.11 5.12 2.83 0 5.12-2.29 5.12-5.12z" fill="#4D4DF4"/><path d="M11.3 5.12C11.3 2.29 9.01 0 6.18 0 3.35 0 1.06 2.29 1.06 5.12c0 2.83 2.29 5.12 5.12 5.12 2.83 0 5.12-2.29 5.12-5.12z" fill="#4D4DF4"/><path d="M11.3 34.8c0-2.83-2.29-5.12-5.12-5.12-2.83 0-5.12 2.29-5.12 5.12 0 2.83 2.29 5.12 5.12 5.12 2.83 0 5.12-2.29 5.12-5.12z" fill="white"/><path d="M11.29 19.96c0-2.83-2.29-5.12-5.11-5.12-2.83 0-5.12 2.29-5.12 5.12 0 2.83 2.29 5.12 5.12 5.12 2.82 0 5.11-2.29 5.11-5.12z" fill="#4D4DF4"/><path d="M39.1 23.96c.17-.17.44-.43.52-.52.85-.91 1.37-2.13 1.37-3.47 0-1.5-.65-2.86-1.68-3.79-.12-.12-.25-.25-.38-.37-.64-.66-1.73-1.91-1.73-3.25 0-1.47 1.31-2.85 1.9-3.43.17-.17.44-.43.52-.52.85-.91 1.37-2.13 1.37-3.47-.01-2.83-2.3-5.12-5.12-5.12-2.83 0-5.12 2.29-5.12 5.12 0 1.35.52 2.57 1.37 3.48.08.09.42.41.69.69.64.66 1.73 1.91 1.73 3.25 0 1.47-1.31 2.85-1.9 3.43-.07.07-.16.16-.25.25-1 .93-1.63 2.27-1.63 3.75 0 1.35.52 2.57 1.37 3.48.08.09.42.41.69.69.64.66 1.73 1.91 1.73 3.25 0 1.47-1.31 2.85-1.9 3.43-.17.17-.44.43-.52.52-.85.91-1.37 2.13-1.37 3.47 0 2.83 2.29 5.12 5.12 5.12 2.83 0 5.12-2.29 5.12-5.12 0-1.35-.52-2.57-1.37-3.48-.08-.09-.42-.41-.69-.69-.64-.66-1.73-1.91-1.73-3.25 0-1.47 1.31-2.85 1.9-3.43z" fill="white"/><path d="M17.97 30.63c.64-.66 1.73-1.91 1.73-3.25 0-1.47-1.31-2.85-1.9-3.43-.17-.17-.44-.43-.52-.52-.85-.91-1.37-2.13-1.37-3.47 0-2.83 2.29-5.12 5.12-5.12 2.83 0 5.12 2.29 5.12 5.12 0 1.35-.52 2.57-1.37 3.48-.08.09-.42.41-.69.69-.64.66-1.73 1.91-1.73 3.25 0 1.47 1.31 2.85 1.9 3.43.17.17.44.43.52.52.85.91 1.37 2.13 1.37 3.47 0 2.83-2.29 5.12-5.12 5.12-2.83 0-5.12-2.29-5.12-5.12 0-1.35.52-2.57 1.37-3.48.08-.09.42-.41.69-.69z" fill="white"/></svg>
+    </div>
+    <h1 style="font-size:22px;font-weight:700;color:#fff;margin-bottom:6px">DCX Design Team</h1>
+    <p style="font-size:13px;color:#555;margin-bottom:28px">Sign in with your Slack account</p>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+      <div class="folder-item" style="padding:12px 14px" onclick="loginAs('diana')">
+        <div class="avatar" style="background:#1a2f1a;color:#4ade80;font-size:11px">DS</div>
+        <div style="text-align:left;flex:1"><p style="font-size:13px;font-weight:500;color:#fff">Diana Stilinovic</p><p style="font-size:11px;color:#555">Design Manager · Admin</p></div>
+        <span class="badge badge-green">Admin</span>
+      </div>
+      <div style="height:1px;background:#1e1e1e;margin:2px 0"></div>
+      <div class="folder-item" style="padding:12px 14px" onclick="loginAs('franzi')">
+        <div class="avatar" style="background:#1e3a5f;color:#60a5fa;font-size:11px">FB</div>
+        <div style="text-align:left;flex:1"><p style="font-size:13px;font-weight:500;color:#fff">Franzi Buitrago</p><p style="font-size:11px;color:#555">Product Designer · Member</p></div>
+        <span class="badge badge-blue">Member</span>
+      </div>
+      <div class="folder-item" style="padding:12px 14px" onclick="loginAs('franco')">
+        <div class="avatar" style="background:#1e3f2f;color:#4ade80;font-size:11px">FM</div>
+        <div style="text-align:left;flex:1"><p style="font-size:13px;font-weight:500;color:#fff">Franco Manavella</p><p style="font-size:11px;color:#555">Product Designer · Member</p></div>
+        <span class="badge badge-blue">Member</span>
+      </div>
+      <div class="folder-item" style="padding:12px 14px" onclick="loginAs('marc')">
+        <div class="avatar" style="background:#3b1f5e;color:#c084fc;font-size:11px">MM</div>
+        <div style="text-align:left;flex:1"><p style="font-size:13px;font-weight:500;color:#fff">Marc Morales</p><p style="font-size:11px;color:#555">Product Designer · Member</p></div>
+        <span class="badge badge-blue">Member</span>
+      </div>
+      <div class="folder-item" style="padding:12px 14px" onclick="loginAs('juan')">
+        <div class="avatar" style="background:#2d1f1f;color:#fb923c;font-size:11px">JS</div>
+        <div style="text-align:left;flex:1"><p style="font-size:13px;font-weight:500;color:#fff">Juan Felipe Salgado</p><p style="font-size:11px;color:#555">Product Designer · Member</p></div>
+        <span class="badge badge-blue">Member</span>
+      </div>
+    </div>
+    <p style="font-size:11px;color:#333">Simulated Slack OAuth authentication</p>
+  </div>
+</div>
+
+<div id="app" style="display:none;height:100vh;flex-direction:column">
+  <div style="display:flex;flex:1;overflow:hidden">
+    <aside id="sidebar" class="sidebar" style="background:#0d0d0d;border-right:1px solid #1e1e1e;padding:16px;display:flex;flex-direction:column">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div onclick="goHome()" style="display:flex;align-items:center;gap:10px;cursor:pointer;flex:1;min-width:0">
+          <svg width="19" height="16" viewBox="0 0 43 40" fill="none"><path d="M26.14 5.12C26.14 2.29 23.85 0 21.02 0 18.2 0 15.91 2.29 15.91 5.12c0 2.83 2.29 5.12 5.11 5.12 2.83 0 5.12-2.29 5.12-5.12z" fill="#4D4DF4"/><path d="M11.3 5.12C11.3 2.29 9.01 0 6.18 0 3.35 0 1.06 2.29 1.06 5.12c0 2.83 2.29 5.12 5.12 5.12 2.83 0 5.12-2.29 5.12-5.12z" fill="#4D4DF4"/><path d="M11.3 34.8c0-2.83-2.29-5.12-5.12-5.12-2.83 0-5.12 2.29-5.12 5.12 0 2.83 2.29 5.12 5.12 5.12 2.83 0 5.12-2.29 5.12-5.12z" fill="white"/><path d="M11.29 19.96c0-2.83-2.29-5.12-5.11-5.12-2.83 0-5.12 2.29-5.12 5.12 0 2.83 2.29 5.12 5.12 5.12 2.82 0 5.11-2.29 5.11-5.12z" fill="#4D4DF4"/><path d="M39.1 23.96c.17-.17.44-.43.52-.52.85-.91 1.37-2.13 1.37-3.47 0-1.5-.65-2.86-1.68-3.79-.12-.12-.25-.25-.38-.37-.64-.66-1.73-1.91-1.73-3.25 0-1.47 1.31-2.85 1.9-3.43.17-.17.44-.43.52-.52.85-.91 1.37-2.13 1.37-3.47-.01-2.83-2.3-5.12-5.12-5.12-2.83 0-5.12 2.29-5.12 5.12 0 1.35.52 2.57 1.37 3.48.08.09.42.41.69.69.64.66 1.73 1.91 1.73 3.25 0 1.47-1.31 2.85-1.9 3.43-.07.07-.16.16-.25.25-1 .93-1.63 2.27-1.63 3.75 0 1.35.52 2.57 1.37 3.48.08.09.42.41.69.69.64.66 1.73 1.91 1.73 3.25 0 1.47-1.31 2.85-1.9 3.43-.17.17-.44.43-.52.52-.85.91-1.37 2.13-1.37 3.47 0 2.83 2.29 5.12 5.12 5.12 2.83 0 5.12-2.29 5.12-5.12 0-1.35-.52-2.57-1.37-3.48-.08-.09-.42-.41-.69-.69-.64-.66-1.73-1.91-1.73-3.25 0-1.47 1.31-2.85 1.9-3.43z" fill="white"/><path d="M17.97 30.63c.64-.66 1.73-1.91 1.73-3.25 0-1.47-1.31-2.85-1.9-3.43-.17-.17-.44-.43-.52-.52-.85-.91-1.37-2.13-1.37-3.47 0-2.83 2.29-5.12 5.12-5.12 2.83 0 5.12 2.29 5.12 5.12 0 1.35-.52 2.57-1.37 3.48-.08.09-.42.41-.69.69-.64.66-1.73 1.91-1.73 3.25 0 1.47 1.31 2.85 1.9 3.43.17.17.44.43.52.52.85.91 1.37 2.13 1.37 3.47 0 2.83-2.29 5.12-5.12 5.12-2.83 0-5.12-2.29-5.12-5.12 0-1.35.52-2.57 1.37-3.48.08-.09.42-.41.69-.69z" fill="white"/></svg>
+          <span style="font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">DCX Design Team</span>
+        </div>
+        <div style="display:flex;gap:2px;flex-shrink:0">
+          <button class="icon-btn" id="add-folder-btn" onclick="addFolder()" title="New folder"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></button>
+          <button class="icon-btn" id="del-folder-btn" onclick="deleteSelectedFolder()" style="display:none"><svg class="ic" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
+        </div>
+      </div>
+      <div id="folder-list" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:4px"></div>
+      <div id="settings-btn-wrap" style="display:none;margin-top:8px">
+        <div id="settings-item" onclick="switchTab('slack')" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;border:1px solid #2a2a2a">
+          <svg style="width:15px;height:15px;stroke:#666;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span id="settings-label" style="font-size:13px;color:#666">Settings</span>
+        </div>
+      </div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid #1e1e1e">
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:#161616;border:1px solid #2a2a2a;border-radius:8px">
+          <div id="pill-avatar" class="avatar" style="width:22px;height:22px;font-size:9px"></div>
+          <span id="pill-name" style="font-size:12px;color:#888;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+          <button class="icon-btn" onclick="logout()" style="width:22px;height:22px"><svg class="ic" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+        </div>
+      </div>
+    </aside>
+
+    <main style="flex:1;display:flex;flex-direction:column;overflow:hidden;background:#111">
+      <header style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #1e1e1e;background:#0d0d0d;flex-shrink:0">
+        <button class="icon-btn" onclick="toggleSidebar()"><svg class="ic16" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg></button>
+        <div style="display:flex;gap:2px;background:#161616;border:1px solid #2a2a2a;border-radius:8px;padding:3px">
+          <button class="tab-btn active" id="tab-prompts" onclick="switchTab('prompts')">Prompts</button>
+          <button class="tab-btn" id="tab-stats" onclick="switchTab('stats')" style="display:none">Stats</button>
+        </div>
+        <div id="header-search-wrap" style="flex:1;position:relative;display:none">
+          <svg class="ic" viewBox="0 0 24 24" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#555"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="search-input" type="text" placeholder="Search prompts..." class="inp" style="padding-left:34px;font-size:13px" oninput="renderPrompts()">
+        </div>
+        <button class="icon-btn active" id="view-grid-btn" onclick="setView('grid')" style="display:none"><svg class="ic16" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button>
+        <button class="icon-btn" id="view-list-btn" onclick="setView('list')" style="display:none"><svg class="ic16" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
+        <div style="margin-left:auto">
+          <button class="btn-primary" onclick="addPrompt()"><svg class="ic" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add prompt</button>
+        </div>
+      </header>
+
+      <div id="view-prompts" style="flex:1;padding:20px;overflow-y:auto">
+        <h2 id="folder-title" style="font-size:17px;font-weight:600;color:#fff;margin-bottom:18px"></h2>
+        <div id="prompts-grid"></div>
+        <div id="no-prompts" class="hidden" style="text-align:center;padding:60px 20px;color:#444"><p style="font-size:14px">This folder is empty</p></div>
+        <div id="no-folder" style="text-align:center;padding:60px 20px;color:#444"><p style="font-size:14px">Select or create a folder</p></div>
+      </div>
+
+      <div id="view-stats" class="hidden" style="flex:1;padding:20px;overflow-y:auto">
+        <h2 style="font-size:17px;font-weight:600;color:#fff;margin-bottom:20px">Usage stats</h2>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+          <div style="background:#161616;border:1px solid #2a2a2a;border-radius:10px;padding:16px"><p style="font-size:11px;color:#555;margin-bottom:6px">Total prompts</p><p id="stat-total" style="font-size:28px;font-weight:600;color:#fff;margin:0">0</p></div>
+          <div style="background:#161616;border:1px solid #2a2a2a;border-radius:10px;padding:16px"><p style="font-size:11px;color:#555;margin-bottom:6px">Total copies</p><p id="stat-copies" style="font-size:28px;font-weight:600;color:#fff;margin:0">0</p></div>
+          <div style="background:#161616;border:1px solid #2a2a2a;border-radius:10px;padding:16px"><p style="font-size:11px;color:#555;margin-bottom:6px">Active users</p><p style="font-size:28px;font-weight:600;color:#fff;margin:0">5</p></div>
+          <div style="background:#161616;border:1px solid #2a2a2a;border-radius:10px;padding:16px"><p style="font-size:11px;color:#555;margin-bottom:6px">Folders</p><p id="stat-folders" style="font-size:28px;font-weight:600;color:#fff;margin:0">0</p></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+          <div style="background:#161616;border:1px solid #2a2a2a;border-radius:10px;padding:16px"><p style="font-size:13px;font-weight:500;color:#fff;margin:0 0 16px">Most copied</p><div id="top-copied"></div></div>
+          <div style="background:#161616;border:1px solid #2a2a2a;border-radius:10px;padding:16px"><p style="font-size:13px;font-weight:500;color:#fff;margin:0 0 16px">Most viewed</p><div id="top-viewed"></div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div style="background:#161616;border:1px solid #2a2a2a;border-radius:10px;padding:16px"><p style="font-size:13px;font-weight:500;color:#fff;margin:0 0 16px">Activity by user</p><div id="user-activity"></div></div>
+          <div style="background:#161616;border:1px solid #2a2a2a;border-radius:10px;padding:16px"><p style="font-size:13px;font-weight:500;color:#fff;margin:0 0 16px">Prompts added (last 4 weeks)</p><div id="week-chart" style="display:flex;align-items:flex-end;gap:8px;height:120px;padding-top:8px"></div></div>
+        </div>
+      </div>
+
+      <div id="view-slack" class="hidden" style="flex:1;padding:20px;overflow-y:auto">
+        <h2 style="font-size:17px;font-weight:600;color:#fff;margin-bottom:6px">Settings</h2>
+        <p style="font-size:13px;color:#555;margin-bottom:20px">Configure how the prompt library interacts with your Slack workspace.</p>
+        <div style="background:#1a1e2a;border:1px solid #2a3244;border-radius:10px;padding:16px;margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+            <div style="width:32px;height:32px;background:#4A154B;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg style="width:16px;height:16px" viewBox="0 0 24 24" fill="none"><circle cx="6" cy="9" r="2.5" fill="#E01E5A"/><circle cx="12" cy="9" r="2.5" fill="#ECB22E"/><circle cx="18" cy="9" r="2.5" fill="#2EB67D"/><circle cx="6" cy="15" r="2.5" fill="#36C5F0"/></svg></div>
+            <div><p style="font-size:13px;font-weight:500;color:#fff">Connected workspace</p><p style="font-size:11px;color:#4ade80">● flyr.slack.com</p></div>
+            <span class="badge badge-green" style="margin-left:auto">Connected</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;color:#555">
+            <div><span style="color:#777">Bot:</span> @prompt-library</div>
+            <div><span style="color:#777">Channel:</span> #prompts-design</div>
+          </div>
+        </div>
+        <p style="font-size:11px;font-weight:500;color:#555;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Notifications</p>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#161616;border:1px solid #2a2a2a;border-radius:10px">
+            <div><p style="font-size:13px;color:#fff">New prompt added</p><p style="font-size:11px;color:#444;margin-top:2px">Notify the channel when someone creates a prompt</p></div>
+            <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;color:#60a5fa;background:rgba(59,130,246,.1);padding:3px 10px;border-radius:6px;border:1px solid rgba(59,130,246,.2)">#prompts-design</span><div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#161616;border:1px solid #2a2a2a;border-radius:10px">
+            <div><p style="font-size:13px;color:#fff">Popular prompts</p><p style="font-size:11px;color:#444;margin-top:2px">Alert when a prompt exceeds 10 copies</p></div>
+            <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;color:#60a5fa;background:rgba(59,130,246,.1);padding:3px 10px;border-radius:6px;border:1px solid rgba(59,130,246,.2)">#prompts-design</span><div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#161616;border:1px solid #2a2a2a;border-radius:10px">
+            <div><p style="font-size:13px;color:#fff">Weekly digest</p><p style="font-size:11px;color:#444;margin-top:2px">Every Monday at 9:00 · Top 5 prompts of the week</p></div>
+            <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;color:#60a5fa;background:rgba(59,130,246,.1);padding:3px 10px;border-radius:6px;border:1px solid rgba(59,130,246,.2)">#prompts-design</span><div class="toggle" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div></div>
+          </div>
+        </div>
+        <p style="font-size:11px;font-weight:500;color:#555;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Slack webhook URL</p>
+        <div style="display:flex;gap:10px;margin-bottom:20px">
+          <input id="webhook-input" type="text" class="inp" placeholder="https://hooks.slack.com/workflows/...">
+          <button class="btn-primary" onclick="saveWebhook()" style="flex-shrink:0">Save</button>
+        </div>
+        <p style="font-size:11px;font-weight:500;color:#555;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Recent messages</p>
+        <div id="slack-messages" style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px"></div>
+        <button class="btn-primary" onclick="testSlackMsg()"><svg class="ic" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Send test message</button>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div id="prompt-modal" class="modal-bg hidden">
+  <div class="modal" style="max-width:560px;max-height:88vh;display:flex;flex-direction:column">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <h3 id="modal-title" style="font-size:15px;font-weight:600;color:#fff">New prompt</h3>
+      <button class="icon-btn" onclick="closeModal('prompt-modal')"><svg class="ic16" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;overflow-y:auto;flex:1">
+      <div><label style="font-size:12px;color:#666;display:block;margin-bottom:6px">Title</label><input id="modal-prompt-title" type="text" class="inp" placeholder="E.g. Product copy for social media"></div>
+      <div style="flex:1;display:flex;flex-direction:column"><label style="font-size:12px;color:#666;display:block;margin-bottom:6px">Prompt text</label><textarea id="modal-prompt-text" class="inp" rows="9" style="resize:vertical" placeholder="Write the prompt here..."></textarea></div>
+      <div><label style="font-size:12px;color:#666;display:block;margin-bottom:6px">Folder</label><select id="modal-prompt-folder" class="inp"></select></div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid #222">
+      <button class="btn-ghost" onclick="closeModal('prompt-modal')">Cancel</button>
+      <button class="btn-primary" onclick="savePrompt()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="view-modal" class="modal-bg hidden">
+  <div class="modal" style="max-width:600px;max-height:88vh;display:flex;flex-direction:column">
+    <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:16px">
+      <div style="flex:1"><h3 id="view-title" style="font-size:15px;font-weight:600;color:#fff;margin-bottom:4px"></h3><div style="display:flex;gap:12px"><span id="view-author" style="font-size:11px;color:#444"></span><span id="view-stats-inline" style="font-size:11px;color:#444"></span></div></div>
+      <button class="icon-btn" onclick="closeModal('view-modal')"><svg class="ic16" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div style="flex:1;overflow-y:auto"><div id="view-text" style="font-size:13px;color:#bbb;line-height:1.7;background:#111;border:1px solid #222;border-radius:10px;padding:16px;white-space:pre-wrap"></div></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:16px;border-top:1px solid #222">
+      <div style="display:flex;gap:8px">
+        <button class="btn-ghost" id="view-edit-btn" style="font-size:12px;padding:6px 12px;display:none"><svg class="ic" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>
+        <button class="btn-ghost" id="view-delete-btn" style="font-size:12px;padding:6px 12px;color:#f87171;border-color:#2a1a1a;display:none"><svg class="ic" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>Delete</button>
+      </div>
+      <button class="btn-primary" id="view-copy-btn" style="font-size:12px;padding:6px 14px"><svg class="ic" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy prompt</button>
+    </div>
+  </div>
+</div>
+
+<div id="confirm-modal" class="modal-bg hidden">
+  <div class="modal" style="max-width:380px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <h3 id="confirm-title" style="font-size:15px;font-weight:600;color:#fff"></h3>
+      <button class="icon-btn" onclick="closeModal('confirm-modal')"><svg class="ic16" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <p id="confirm-body" style="font-size:13px;color:#777;margin-bottom:20px"></p>
+    <div style="display:flex;justify-content:flex-end;gap:10px">
+      <button class="btn-ghost" onclick="closeModal('confirm-modal')">Cancel</button>
+      <button id="confirm-ok" class="btn-danger">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div id="folder-modal" class="modal-bg hidden">
+  <div class="modal" style="max-width:380px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <h3 id="folder-modal-title" style="font-size:15px;font-weight:600;color:#fff">New folder</h3>
+      <button class="icon-btn" onclick="closeModal('folder-modal')"><svg class="ic16" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div style="margin-bottom:12px"><label style="font-size:12px;color:#666;display:block;margin-bottom:6px">Name</label><input id="folder-name-inp" type="text" class="inp" placeholder="Folder name"></div>
+    <div style="margin-bottom:20px"><label style="font-size:12px;color:#666;display:block;margin-bottom:8px">Color</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div class="color-opt" data-color="#60a5fa" onclick="selectColor(this)" style="width:22px;height:22px;border-radius:50%;background:#60a5fa;cursor:pointer;border:2px solid transparent"></div>
+        <div class="color-opt" data-color="#4ade80" onclick="selectColor(this)" style="width:22px;height:22px;border-radius:50%;background:#4ade80;cursor:pointer;border:2px solid transparent"></div>
+        <div class="color-opt" data-color="#c084fc" onclick="selectColor(this)" style="width:22px;height:22px;border-radius:50%;background:#c084fc;cursor:pointer;border:2px solid transparent"></div>
+        <div class="color-opt" data-color="#fbbf24" onclick="selectColor(this)" style="width:22px;height:22px;border-radius:50%;background:#fbbf24;cursor:pointer;border:2px solid transparent"></div>
+        <div class="color-opt" data-color="#f87171" onclick="selectColor(this)" style="width:22px;height:22px;border-radius:50%;background:#f87171;cursor:pointer;border:2px solid transparent"></div>
+        <div class="color-opt" data-color="#34d399" onclick="selectColor(this)" style="width:22px;height:22px;border-radius:50%;background:#34d399;cursor:pointer;border:2px solid transparent"></div>
+        <div class="color-opt" data-color="#fb923c" onclick="selectColor(this)" style="width:22px;height:22px;border-radius:50%;background:#fb923c;cursor:pointer;border:2px solid transparent"></div>
+        <div class="color-opt" data-color="#e2e8f0" onclick="selectColor(this)" style="width:22px;height:22px;border-radius:50%;background:#e2e8f0;cursor:pointer;border:2px solid transparent"></div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:10px">
+      <button class="btn-ghost" onclick="closeModal('folder-modal')">Cancel</button>
+      <button class="btn-primary" onclick="saveFolderModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"><span id="toast-msg"></span></div>
+
+<script>
+var SLACK_WEBHOOK = '';
+
+var USERS = {
+  franzi: {id:'u1',name:'Franzi Buitrago',initials:'FB',role:'member',bg:'#1e3a5f',color:'#60a5fa'},
+  franco: {id:'u2',name:'Franco Manavella',initials:'FM',role:'member',bg:'#1e3f2f',color:'#4ade80'},
+  marc:   {id:'u3',name:'Marc Morales',initials:'MM',role:'member',bg:'#3b1f5e',color:'#c084fc'},
+  juan:   {id:'u4',name:'Juan Felipe Salgado',initials:'JS',role:'member',bg:'#2d1f1f',color:'#fb923c'},
+  diana:  {id:'u5',name:'Diana Stilinovic',initials:'DS',role:'admin',bg:'#1a2f1a',color:'#4ade80'}
+};
+
+var state = {
+  currentUser: null,
+  selectedFolder: '__all__',
+  viewMode: 'grid',
+  activeTab: 'prompts',
+  editingPromptId: null,
+  editingFolderId: null,
+  selectedColor: '#60a5fa',
+  data: {
+    folders: [
+      {id:'f1',name:'UX / Research',color:'#60a5fa',order:0},
+      {id:'f2',name:'Copy & Content',color:'#4ade80',order:1},
+      {id:'f3',name:'Motion & Animation',color:'#c084fc',order:2},
+      {id:'f4',name:'Design Systems',color:'#fbbf24',order:3}
+    ],
+    prompts: [
+      {id:'p1',folderId:'f1',title:'User analysis',text:'Act as a senior UX researcher. Analyze the following user profile and provide:\n1) Main needs\n2) Pain points\n3) Motivations\n4) Design recommendations.\n\nProfile: [DESCRIBE THE USER]',order:0,author:'u1',createdAt:'2025-03-01',copies:18,views:34},
+      {id:'p2',folderId:'f1',title:'Usability review',text:'Evaluate this interface from a usability perspective. Identify UX issues, rank them by impact (high/medium/low) and suggest concrete improvements.\n\nInterface: [DESCRIPTION OR LINK]',order:1,author:'u5',createdAt:'2025-03-05',copies:12,views:28},
+      {id:'p3',folderId:'f1',title:'Jobs To Be Done',text:'Apply the Jobs To Be Done framework to the following product. Identify the main job, related jobs and resistance points.\n\nProduct: [PRODUCT NAME]',order:2,author:'u2',createdAt:'2025-03-10',copies:9,views:21},
+      {id:'p4',folderId:'f2',title:'Landing page copy',text:'You are a copywriter specialising in SaaS products. Write the copy for the hero section of a landing page.\n\nProduct: [DESCRIPTION]\nTone: [FORMAL/CASUAL]\nAudience: [TARGET]',order:0,author:'u3',createdAt:'2025-03-08',copies:24,views:47},
+      {id:'p5',folderId:'f2',title:'Error microcopy',text:'Write friendly and helpful error messages for the following cases. Each message should explain what happened and what the user can do.\n\nCases: [LIST OF ERRORS]',order:1,author:'u4',createdAt:'2025-03-12',copies:15,views:31},
+      {id:'p6',folderId:'f3',title:'Animation storyboard',text:'Create a detailed storyboard for a [DURATION]-second UI animation. Include key scenes, transitions and timing notes.\n\nElement to animate: [DESCRIPTION]',order:0,author:'u2',createdAt:'2025-03-14',copies:7,views:19},
+      {id:'p7',folderId:'f4',title:'Token audit',text:'Analyse the following design token system and provide: redundant tokens to remove, coverage gaps, recommended hierarchy and naming conventions.\n\nCurrent tokens: [TOKEN LIST]',order:0,author:'u5',createdAt:'2025-03-18',copies:11,views:26}
+    ],
+    slackMessages: [
+      {text:'New prompt added: "User analysis" by Franzi Buitrago',channel:'#prompts-design',time:'2 days ago'},
+      {text:'"Landing page copy" exceeded 20 copies this week',channel:'#prompts-design',time:'3 days ago'},
+      {text:'Weekly digest: 7 prompts · 96 total copies · Most active: Franzi Buitrago',channel:'#prompts-design',time:'Last Monday'}
+    ]
+  }
+};
+
+function loginAs(role) {
+  state.currentUser = USERS[role];
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  var u = state.currentUser;
+  var av = document.getElementById('pill-avatar');
+  av.style.background = u.bg;
+  av.style.color = u.color;
+  av.style.width = '22px';
+  av.style.height = '22px';
+  av.style.fontSize = '9px';
+  av.textContent = u.initials;
+  document.getElementById('pill-name').textContent = u.name;
+  var isAdmin = u.role === 'admin';
+  document.getElementById('del-folder-btn').style.display = isAdmin ? 'inline-flex' : 'none';
+  document.getElementById('settings-btn-wrap').style.display = isAdmin ? 'block' : 'none';
+  document.getElementById('tab-stats').style.display = isAdmin ? 'inline-flex' : 'none';
+  document.getElementById('header-search-wrap').style.display = 'block';
+  document.getElementById('view-grid-btn').style.display = 'inline-flex';
+  document.getElementById('view-list-btn').style.display = 'inline-flex';
+  document.getElementById('view-grid-btn').classList.add('active');
+  state.selectedFolder = '__all__';
+  render();
+}
+
+function logout() {
+  state.currentUser = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+function goHome() { switchTab('prompts'); }
+
+function render() { renderFolders(); renderPrompts(); }
+
+function renderFolders() {
+  var el = document.getElementById('folder-list');
+  el.innerHTML = '';
+  var isAdmin = state.currentUser && state.currentUser.role === 'admin';
+
+  var allItem = document.createElement('div');
+  allItem.className = 'folder-item' + (state.selectedFolder === '__all__' ? ' active' : '');
+  allItem.innerHTML = '<span style="width:8px;height:8px;border-radius:50%;background:#555;flex-shrink:0;display:block"></span><span style="font-size:13px;color:#ccc;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">All prompts</span><span style="font-size:11px;color:#444">' + state.data.prompts.length + '</span>';
+  allItem.onclick = function() { state.selectedFolder = '__all__'; renderFolders(); renderPrompts(); };
+  el.appendChild(allItem);
+
+  var divider = document.createElement('div');
+  divider.style.cssText = 'height:1px;background:#1e1e1e;margin:4px 0';
+  el.appendChild(divider);
+
+  var sorted = state.data.folders.slice().sort(function(a,b){return a.order-b.order;});
+  for (var i = 0; i < sorted.length; i++) {
+    (function(f) {
+      var count = state.data.prompts.filter(function(p){return p.folderId===f.id;}).length;
+      var item = document.createElement('div');
+      item.className = 'folder-item' + (state.selectedFolder === f.id ? ' active' : '');
+      var editBtnHtml = isAdmin ? '<div class="folder-actions" style="display:flex;gap:2px;flex-shrink:0"><button class="icon-btn" style="width:20px;height:20px"><svg style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></div>' : '';
+      item.innerHTML = '<span style="width:8px;height:8px;border-radius:50%;background:'+f.color+';flex-shrink:0;display:block"></span><span style="font-size:13px;color:#ccc;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+f.name+'</span><span style="font-size:11px;color:#444;flex-shrink:0">'+count+'</span>'+editBtnHtml;
+      item.addEventListener('click', function(e) {
+        if (e.target.closest('.folder-actions')) return;
+        state.selectedFolder = f.id; renderFolders(); renderPrompts();
+      });
+      item.addEventListener('dblclick', function(e) {
+        if (!isAdmin || e.target.closest('.folder-actions')) return;
+        openFolderModal(f.id);
+      });
+      if (isAdmin) {
+        var editBtn = item.querySelector('.folder-actions button');
+        if (editBtn) editBtn.addEventListener('click', function(e) { e.stopPropagation(); openFolderModal(f.id); });
+      }
+      el.appendChild(item);
+    })(sorted[i]);
+  }
+}
+
+function renderPrompts() {
+  var grid = document.getElementById('prompts-grid');
+  var noP = document.getElementById('no-prompts');
+  var noF = document.getElementById('no-folder');
+  grid.innerHTML = '';
+  var searchEl = document.getElementById('search-input');
+  var search = searchEl ? searchEl.value.toLowerCase() : '';
+
+  noF.style.display = 'none';
+  grid.style.cssText = state.viewMode === 'list' ? 'display:flex;flex-direction:column;gap:8px' : 'display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px';
+
+  var prompts;
+  if (state.selectedFolder === '__all__') {
+    document.getElementById('folder-title').textContent = 'All prompts';
+    prompts = state.data.prompts.slice().sort(function(a,b){return a.title.localeCompare(b.title);});
+  } else {
+    var folder = null;
+    for (var i=0;i<state.data.folders.length;i++){if(state.data.folders[i].id===state.selectedFolder){folder=state.data.folders[i];break;}}
+    document.getElementById('folder-title').textContent = folder ? folder.name : '';
+    prompts = state.data.prompts.filter(function(p){return p.folderId===state.selectedFolder;}).sort(function(a,b){return a.order-b.order;});
+  }
+  if (search) {
+    prompts = prompts.filter(function(p){return p.title.toLowerCase().indexOf(search)>-1||p.text.toLowerCase().indexOf(search)>-1;});
+  }
+  noP.classList.toggle('hidden', prompts.length > 0);
+  for (var j=0;j<prompts.length;j++) { buildCard(prompts[j], grid); }
+}
+
+function getAuthor(authorId) {
+  var keys = Object.keys(USERS);
+  for (var i=0;i<keys.length;i++){if(USERS[keys[i]].id===authorId)return USERS[keys[i]];}
+  return USERS.franzi;
+}
+
+function buildCard(p, grid) {
+  var a = getAuthor(p.author);
+  var isAdmin = state.currentUser && state.currentUser.role === 'admin';
+  var isOwner = state.currentUser && state.currentUser.id === p.author;
+  var canDelete = isAdmin || isOwner;
+  var delHtml = canDelete ? '<button class="icon-btn del-btn" style="color:#555"><svg style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>' : '';
+  var copyHtml = '<button class="icon-btn copy-btn"><svg style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>';
+  var card = document.createElement('div');
+  card.className = 'prompt-card';
+  if (state.viewMode === 'list') {
+    card.style.cssText = 'display:flex;align-items:center;gap:12px;padding:10px 14px';
+    card.innerHTML = '<div class="avatar" style="background:'+a.bg+';color:'+a.color+';font-size:10px">'+a.initials+'</div><div style="flex:1;min-width:0"><p style="font-size:13px;font-weight:500;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+p.title+'</p><p style="font-size:11px;color:#555;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px">'+p.text.substring(0,80)+'...</p></div><div style="display:flex;align-items:center;gap:8px;flex-shrink:0"><span style="font-size:11px;color:#444">'+p.copies+' copies</span>'+copyHtml+delHtml+'</div>';
+  } else {
+    card.style.cssText = 'padding:14px;display:flex;flex-direction:column';
+    card.innerHTML = '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px"><h3 style="font-size:13px;font-weight:600;color:#fff;line-height:1.4;flex:1;padding-right:8px">'+p.title+'</h3><div class="avatar" style="width:22px;height:22px;font-size:9px;flex-shrink:0;background:'+a.bg+';color:'+a.color+'">'+a.initials+'</div></div><p style="font-size:12px;color:#555;line-height:1.6;flex:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">'+p.text+'</p><div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid #222"><div style="display:flex;align-items:center;gap:10px;font-size:11px;color:#444"><span>'+p.copies+' copies</span><span>'+p.views+' views</span></div><div style="display:flex;gap:4px">'+copyHtml+delHtml+'</div></div>';
+  }
+  (function(pid){
+    card.addEventListener('click', function(e){if(e.target.closest('.copy-btn')||e.target.closest('.del-btn'))return;openViewModal(pid);});
+    card.querySelector('.copy-btn').addEventListener('click', function(e){e.stopPropagation();copyPrompt(pid);});
+    if (canDelete && card.querySelector('.del-btn')) card.querySelector('.del-btn').addEventListener('click', function(e){e.stopPropagation();confirmDeletePrompt(pid);});
+  })(p.id);
+  grid.appendChild(card);
+}
+
+function renderStats() {
+  var all = state.data.prompts;
+  document.getElementById('stat-total').textContent = all.length;
+  document.getElementById('stat-copies').textContent = all.reduce(function(s,p){return s+p.copies;},0);
+  document.getElementById('stat-folders').textContent = state.data.folders.length;
+
+  function makeBarList(elId, sorted, key, color) {
+    var max = sorted.length > 0 ? sorted[0][key] : 1;
+    if (max === 0) max = 1;
+    var html = '';
+    for (var i=0;i<Math.min(sorted.length,5);i++) {
+      var pct = Math.round(sorted[i][key]/max*100);
+      html += '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;color:#aaa;max-width:78%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+sorted[i].title+'</span><span style="font-size:12px;font-weight:600;color:'+color+'">'+sorted[i][key]+'</span></div><div style="height:5px;background:#2a2a2a;border-radius:3px"><div style="height:5px;background:'+color+';border-radius:3px;width:'+pct+'%"></div></div></div>';
+    }
+    document.getElementById(elId).innerHTML = html;
+  }
+
+  makeBarList('top-copied', all.slice().sort(function(a,b){return b.copies-a.copies;}), 'copies', '#3b82f6');
+  makeBarList('top-viewed', all.slice().sort(function(a,b){return b.views-a.views;}), 'views', '#a855f7');
+
+  var keys = Object.keys(USERS);
+  var uStats = [];
+  for (var i=0;i<keys.length;i++) {
+    var u = USERS[keys[i]];
+    uStats.push({
+      u: u,
+      added: all.filter(function(p){return p.author===u.id;}).length,
+      copies: all.filter(function(p){return p.author===u.id;}).reduce(function(s,p){return s+p.copies;},0)
+    });
+  }
+  uStats.sort(function(a,b){return b.copies-a.copies;});
+  var uHtml = '';
+  for (var j=0;j<uStats.length;j++) {
+    var s = uStats[j];
+    uHtml += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><div style="width:28px;height:28px;border-radius:50%;background:'+s.u.bg+';color:'+s.u.color+';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0">'+s.u.initials+'</div><div style="flex:1;min-width:0"><p style="font-size:12px;font-weight:500;color:#ccc;margin:0">'+s.u.name+'</p><p style="font-size:11px;color:#555;margin:2px 0 0">'+s.added+' prompts · '+s.copies+' copies</p></div><span style="font-size:11px;font-weight:600;color:#fbbf24;background:rgba(251,191,36,.1);padding:2px 8px;border-radius:20px;flex-shrink:0">'+s.copies+'</span></div>';
+  }
+  document.getElementById('user-activity').innerHTML = uHtml;
+
+  var weeks = [{l:'Week 1',v:2},{l:'Week 2',v:3},{l:'Week 3',v:1},{l:'Week 4',v:1}];
+  var wHtml = '';
+  for (var k=0;k<weeks.length;k++) {
+    var pct = Math.round(weeks[k].v/3*100);
+    wHtml += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%"><span style="font-size:11px;color:#60a5fa;font-weight:600">'+weeks[k].v+'</span><div style="width:100%;border-radius:4px 4px 0 0;background:#3b82f6;height:'+pct+'%;min-height:4px;opacity:.75"></div><span style="font-size:10px;color:#555">'+weeks[k].l+'</span></div>';
+  }
+  document.getElementById('week-chart').innerHTML = wHtml;
+}
+
+function renderSlackMessages() {
+  var html = '';
+  for (var i=0;i<state.data.slackMessages.length;i++) {
+    var m = state.data.slackMessages[i];
+    html += '<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:#161616;border:1px solid #222;border-radius:10px"><div style="width:22px;height:22px;background:#4A154B;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg style="width:11px;height:11px" viewBox="0 0 24 24" fill="none"><circle cx="6" cy="9" r="2.5" fill="#E01E5A"/></svg></div><div style="flex:1;min-width:0"><div style="display:flex;gap:8px;margin-bottom:3px"><span style="font-size:11px;font-weight:500;color:#666">@prompt-library</span><span style="font-size:11px;color:#60a5fa">'+m.channel+'</span><span style="font-size:11px;color:#333;margin-left:auto">'+m.time+'</span></div><p style="font-size:12px;color:#999;margin:0">'+m.text+'</p></div></div>';
+  }
+  document.getElementById('slack-messages').innerHTML = html;
+}
+
+function saveWebhook() {
+  var val = document.getElementById('webhook-input').value.trim();
+  if (val) { SLACK_WEBHOOK = val; showToast('Webhook saved','success'); }
+  else showToast('Enter a webhook URL','error');
+}
+
+function sendToSlack(text) {
+  if (!SLACK_WEBHOOK) return;
+  fetch(SLACK_WEBHOOK, {
+    method: 'POST',
+    headers: {'Content-Type':'application/x-www-form-urlencoded'},
+    body: 'payload=' + encodeURIComponent(JSON.stringify({text:text}))
+  }).catch(function(){});
+}
+
+function addSlackMsg(text, channel) {
+  state.data.slackMessages.unshift({text:text, channel:channel, time:'Just now'});
+  if (state.activeTab === 'slack') renderSlackMessages();
+  sendToSlack(text);
+}
+
+function testSlackMsg() {
+  addSlackMsg('Test message from DCX Design Team Prompt Library','#prompts-design');
+  renderSlackMessages();
+  showToast('Test message sent','success');
+}
+
+function openFolderModal(id) {
+  state.editingFolderId = id || null;
+  state.selectedColor = '#60a5fa';
+  if (id) {
+    var f = null;
+    for(var i=0;i<state.data.folders.length;i++){if(state.data.folders[i].id===id){f=state.data.folders[i];break;}}
+    document.getElementById('folder-modal-title').textContent = 'Edit folder';
+    document.getElementById('folder-name-inp').value = f ? f.name : '';
+    state.selectedColor = f ? f.color : '#60a5fa';
+  } else {
+    document.getElementById('folder-modal-title').textContent = 'New folder';
+    document.getElementById('folder-name-inp').value = '';
+  }
+  document.querySelectorAll('.color-opt').forEach(function(el){el.style.border=el.dataset.color===state.selectedColor?'2px solid #fff':'2px solid transparent';});
+  document.getElementById('folder-modal').classList.remove('hidden');
+}
+
+function selectColor(el) {
+  state.selectedColor = el.dataset.color;
+  document.querySelectorAll('.color-opt').forEach(function(e){e.style.border='2px solid transparent';});
+  el.style.border = '2px solid #fff';
+}
+
+function saveFolderModal() {
+  var name = document.getElementById('folder-name-inp').value.trim();
+  if (!name) { showToast('Enter a folder name','error'); return; }
+  if (state.editingFolderId) {
+    for(var i=0;i<state.data.folders.length;i++){
+      if(state.data.folders[i].id===state.editingFolderId){state.data.folders[i].name=name;state.data.folders[i].color=state.selectedColor;break;}
+    }
+  } else {
+    state.data.folders.push({id:'f'+Date.now(),name:name,color:state.selectedColor,order:state.data.folders.length});
+  }
+  closeModal('folder-modal');
+  render();
+  showToast(state.editingFolderId?'Folder updated':'Folder created','success');
+}
+
+function addFolder() { openFolderModal(null); }
+
+function deleteSelectedFolder() {
+  if (!state.selectedFolder || state.selectedFolder === '__all__') { showToast('Select a folder to delete','error'); return; }
+  if (!state.currentUser || state.currentUser.role !== 'admin') { showToast('Only admins can delete folders','error'); return; }
+  var fname = '';
+  for(var i=0;i<state.data.folders.length;i++){if(state.data.folders[i].id===state.selectedFolder){fname=state.data.folders[i].name;break;}}
+  document.getElementById('confirm-title').textContent = 'Delete folder';
+  document.getElementById('confirm-body').textContent = 'Delete "' + fname + '" and all its prompts?';
+  document.getElementById('confirm-ok').onclick = function() {
+    var id = state.selectedFolder;
+    state.data.prompts = state.data.prompts.filter(function(p){return p.folderId!==id;});
+    state.data.folders = state.data.folders.filter(function(x){return x.id!==id;});
+    state.selectedFolder = '__all__';
+    closeModal('confirm-modal');
+    render();
+    showToast('Folder deleted','delete');
+  };
+  document.getElementById('confirm-modal').classList.remove('hidden');
+}
+
+function addPrompt() {
+  state.editingPromptId = null;
+  document.getElementById('modal-title').textContent = 'New prompt';
+  document.getElementById('modal-prompt-title').value = '';
+  document.getElementById('modal-prompt-text').value = '';
+  var defaultFolder = (state.selectedFolder && state.selectedFolder !== '__all__') ? state.selectedFolder : (state.data.folders.length > 0 ? state.data.folders[0].id : '');
+  var opts = '';
+  for(var i=0;i<state.data.folders.length;i++){opts+='<option value="'+state.data.folders[i].id+'"'+(state.data.folders[i].id===defaultFolder?' selected':'')+'>'+state.data.folders[i].name+'</option>';}
+  document.getElementById('modal-prompt-folder').innerHTML = opts;
+  document.getElementById('prompt-modal').classList.remove('hidden');
+}
+
+function openEditModal(id) {
+  state.editingPromptId = id;
+  var p = null;
+  for(var i=0;i<state.data.prompts.length;i++){if(state.data.prompts[i].id===id){p=state.data.prompts[i];break;}}
+  document.getElementById('modal-title').textContent = 'Edit prompt';
+  document.getElementById('modal-prompt-title').value = p ? p.title : '';
+  document.getElementById('modal-prompt-text').value = p ? p.text : '';
+  var opts = '';
+  for(var j=0;j<state.data.folders.length;j++){opts+='<option value="'+state.data.folders[j].id+'"'+(p&&state.data.folders[j].id===p.folderId?' selected':'')+'>'+state.data.folders[j].name+'</option>';}
+  document.getElementById('modal-prompt-folder').innerHTML = opts;
+  document.getElementById('prompt-modal').classList.remove('hidden');
+}
+
+function savePrompt() {
+  var title = document.getElementById('modal-prompt-title').value.trim();
+  var text = document.getElementById('modal-prompt-text').value.trim();
+  var folderId = document.getElementById('modal-prompt-folder').value;
+  if (!title || !text) { showToast('Please fill in title and text','error'); return; }
+  if (state.editingPromptId) {
+    for(var i=0;i<state.data.prompts.length;i++){
+      if(state.data.prompts[i].id===state.editingPromptId){state.data.prompts[i].title=title;state.data.prompts[i].text=text;state.data.prompts[i].folderId=folderId;break;}
+    }
+  } else {
+    var count = state.data.prompts.filter(function(x){return x.folderId===folderId;}).length;
+    state.data.prompts.push({id:'p'+Date.now(),folderId:folderId,title:title,text:text,order:count,author:state.currentUser?state.currentUser.id:'u1',createdAt:new Date().toISOString().split('T')[0],copies:0,views:0});
+    addSlackMsg('New prompt: "'+title+'" by '+(state.currentUser?state.currentUser.name:''),'#prompts-design');
+    state.selectedFolder = folderId;
+    switchTab('prompts');
+  }
+  closeModal('prompt-modal');
+  render();
+  showToast('Prompt saved','success');
+}
+
+function openViewModal(id) {
+  var p = null;
+  for(var i=0;i<state.data.prompts.length;i++){if(state.data.prompts[i].id===id){p=state.data.prompts[i];break;}}
+  if (!p) return;
+  p.views++;
+  var a = getAuthor(p.author);
+  var isAdmin = state.currentUser && state.currentUser.role === 'admin';
+  var isOwner = state.currentUser && state.currentUser.id === p.author;
+  document.getElementById('view-title').textContent = p.title;
+  document.getElementById('view-author').textContent = 'By ' + a.name + ' · ' + p.createdAt;
+  document.getElementById('view-stats-inline').textContent = p.views + ' views · ' + p.copies + ' copies';
+  document.getElementById('view-text').textContent = p.text;
+  document.getElementById('view-edit-btn').style.display = (isAdmin||isOwner)?'inline-flex':'none';
+  document.getElementById('view-delete-btn').style.display = (isAdmin||isOwner)?'inline-flex':'none';
+  (function(pid){
+    document.getElementById('view-copy-btn').onclick = function(){copyPrompt(pid);};
+    document.getElementById('view-edit-btn').onclick = function(){closeModal('view-modal');openEditModal(pid);};
+    document.getElementById('view-delete-btn').onclick = function(){closeModal('view-modal');confirmDeletePrompt(pid);};
+  })(id);
+  document.getElementById('view-modal').classList.remove('hidden');
+}
+
+function copyPrompt(id) {
+  var p = null;
+  for(var i=0;i<state.data.prompts.length;i++){if(state.data.prompts[i].id===id){p=state.data.prompts[i];break;}}
+  if (!p) return;
+  p.copies++;
+  if (navigator.clipboard) navigator.clipboard.writeText(p.text).catch(function(){});
+  showToast('Copied to clipboard!','success');
+  if (p.copies===10||p.copies===15||p.copies===20) addSlackMsg('"'+p.title+'" exceeded '+p.copies+' copies','#prompts-design');
+  renderPrompts();
+}
+
+function confirmDeletePrompt(id) {
+  var p = null;
+  for(var i=0;i<state.data.prompts.length;i++){if(state.data.prompts[i].id===id){p=state.data.prompts[i];break;}}
+  document.getElementById('confirm-title').textContent = 'Delete prompt';
+  document.getElementById('confirm-body').textContent = 'Delete "' + (p?p.title:'') + '"?';
+  document.getElementById('confirm-ok').onclick = function() {
+    state.data.prompts = state.data.prompts.filter(function(x){return x.id!==id;});
+    closeModal('confirm-modal');
+    closeModal('view-modal');
+    render();
+    showToast('Prompt deleted','delete');
+  };
+  document.getElementById('confirm-modal').classList.remove('hidden');
+}
+
+function switchTab(tab) {
+  state.activeTab = tab;
+  var tabs = ['prompts','stats','slack'];
+  for(var i=0;i<tabs.length;i++){
+    document.getElementById('view-'+tabs[i]).classList.toggle('hidden', tabs[i]!==tab);
+    var btn = document.getElementById('tab-'+tabs[i]);
+    if (btn) btn.classList.toggle('active', tabs[i]===tab);
+  }
+  var isPrompts = tab === 'prompts';
+  document.getElementById('header-search-wrap').style.display = isPrompts ? 'block' : 'none';
+  document.getElementById('view-grid-btn').style.display = isPrompts ? 'inline-flex' : 'none';
+  document.getElementById('view-list-btn').style.display = isPrompts ? 'inline-flex' : 'none';
+  document.getElementById('folder-list').style.visibility = isPrompts ? 'visible' : 'hidden';
+  document.getElementById('add-folder-btn').style.opacity = isPrompts ? '1' : '0.3';
+  document.getElementById('add-folder-btn').style.pointerEvents = isPrompts ? 'auto' : 'none';
+  document.getElementById('del-folder-btn').style.opacity = isPrompts ? '1' : '0.3';
+  document.getElementById('del-folder-btn').style.pointerEvents = isPrompts ? 'auto' : 'none';
+  var si = document.getElementById('settings-item');
+  if (si) {
+    si.style.borderColor = tab==='slack' ? '#3b82f6' : '#2a2a2a';
+    si.style.background = tab==='slack' ? 'rgba(59,130,246,.1)' : 'transparent';
+    document.getElementById('settings-label').style.color = tab==='slack' ? '#60a5fa' : '#666';
+  }
+  if (tab==='stats') renderStats();
+  if (tab==='slack') renderSlackMessages();
+}
+
+function setView(v) {
+  state.viewMode = v;
+  document.getElementById('view-grid-btn').classList.toggle('active', v==='grid');
+  document.getElementById('view-list-btn').classList.toggle('active', v==='list');
+  renderPrompts();
+}
+
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); }
+
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+function showToast(msg, type) {
+  var t = document.getElementById('toast');
+  clearTimeout(t._timer);
+  t.style.background = (type==='error'||type==='delete') ? '#ef4444' : '#22c55e';
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  t._timer = setTimeout(function(){t.classList.remove('show');}, 2500);
+}
+
+var modals = ['prompt-modal','view-modal','confirm-modal','folder-modal'];
+for (var mi=0;mi<modals.length;mi++) {
+  (function(id){
+    document.getElementById(id).addEventListener('click', function(e){if(e.target===e.currentTarget)closeModal(id);});
+  })(modals[mi]);
+}
+document.addEventListener('keydown', function(e){
+  if(e.key==='Escape'){for(var i=0;i<modals.length;i++)closeModal(modals[i]);}
+});
+</script>
+</body>
+</html>
